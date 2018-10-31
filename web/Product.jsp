@@ -194,43 +194,8 @@
                             </div>
                             <div class="products-grid">
                                 <div class="toolbar">
-                                    <div class="sorter">
 
-                                        <div class="sort-by">
-                                            Sort by : 
-                                            <select name="" >
-                                                <option value="Default" selected>
-                                                    Default
-                                                </option>
-                                                <option value="Name">
-                                                    Name
-                                                </option>
-                                                <option value="Price">
-                                                    Price
-                                                </option>
-                                            </select>
-                                        </div>
 
-                                    </div>
-                                    <div class="pager">
-                                        <a href="#" class="prev-page">
-                                            <i class="fa fa-angle-left">
-                                            </i>
-                                        </a>
-                                        <a href="#" class="active">
-                                            1
-                                        </a>
-                                        <a href="#">
-                                            2
-                                        </a>
-                                        <a href="#">
-                                            3
-                                        </a>
-                                        <a href="#" class="next-page">
-                                            <i class="fa fa-angle-right">
-                                            </i>
-                                        </a>
-                                    </div>
                                 </div>
                                 <div class="clearfix">
                                 </div>
@@ -286,46 +251,28 @@
                                 <div class="clearfix">
                                 </div>
                                 <div class="toolbar">
-                                    <div class="sorter bottom">
+                                    <%  int pageProduct = 1;
+                                        if (request.getParameter("page") != null) {
+                                            pageProduct = Integer.parseInt(request.getAttribute("page").toString());
+                                        }
+                                        int pageNum = 1;
+                                        if (request.getAttribute("countpage") != null) {
+                                            pageNum = Integer.parseInt(request.getAttribute("countpage").toString());
+                                        }
+                                        System.out.println("aaaaaaaaaaa"+pageNum);
 
-                                        <div class="sort-by">
-                                            Sort by : 
-                                            <select name="">
-                                                <option value="Default" selected>
-                                                    Default
-                                                </option>
-                                                <option value="Name">
-                                                    Name
-                                                </option>
-                                                <option value="
-                                                        <strong>
-                                                        #
-                                                        </strong>
-                                                        ">
-                                                    Price
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                    </div>
+                                    %>
                                     <div class="pager">
-                                        <a href="#" class="prev-page">
-                                            <i class="fa fa-angle-left">
-                                            </i>
+                                        <%for (int i = 0; i < pageNum; i++) {
+                                        String checkSelect="";
+                                        if((i+1)==pageProduct){
+                                            checkSelect = "class=\"active\"";
+                                        }
+                                        %>
+                                        <a href="Product?page=<%=(i+1)%>" <%=checkSelect%>>
+                                            <%=i+1%>
                                         </a>
-                                        <a href="#" class="active">
-                                            1
-                                        </a>
-                                        <a href="#">
-                                            2
-                                        </a>
-                                        <a href="#">
-                                            3
-                                        </a>
-                                        <a href="#" class="next-page">
-                                            <i class="fa fa-angle-right">
-                                            </i>
-                                        </a>
+                                        <% } %>
                                     </div>
                                 </div>
                                 <div class="clearfix">

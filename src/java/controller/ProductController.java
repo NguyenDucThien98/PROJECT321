@@ -8,6 +8,7 @@ package controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
@@ -54,27 +55,56 @@ public class ProductController extends HttpServlet {
                 removeSessionUser(session, request);
                 Display(request, session, rs, dbconn, response);
             }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProductController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void Display(HttpServletRequest request, HttpSession session, ResultSet rs, DBConnection dbconn, HttpServletResponse response) {
+    private void Display(HttpServletRequest request, HttpSession session, ResultSet rs, DBConnection dbconn, HttpServletResponse response) throws SQLException {
         String sql;
+        int page = 1;
+        if (request.getParameter("page") != null) {
+            page = Integer.parseInt(request.getParameter("page"));
+        }
+        double numberProduct = 9;
+        double offset = ((numberProduct * page) - numberProduct) + 1;
         String hidInt = request.getParameter("hid");
         getUser(session, request);
         getSessionProduct(session, request);
+        request.setAttribute("page", page);
         if (hidInt == null) {
-            sql = "select top 18 * from SanPham where status = 1";
+            sql = "SELECT *FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY sid) AS RowNum FROM SanPham where status = 1) AS MyTable"
+                    + " WHERE MyTable.RowNum BETWEEN " + offset + " AND " + page * numberProduct + "";
             rs = dbconn.getData(sql);
             request.setAttribute("listProduct", rs);
+            sql = "select COUNT(sid) from SanPham where status = 1";
+            ResultSet rs2 = dbconn.getData(sql);
+            Double count = 0.0;
+            if (rs2.next()) {
+                count = rs2.getDouble(1);
+            }
+            Double pageNum = Math.ceil((count / numberProduct));
+            request.setAttribute("countpage", pageNum.intValue());
             displayHangSanXuat(request, rs, dbconn);
             dispatch(request, response, "/Product.jsp");
         } else {
-            sql = "select * from SanPham where hid ='" + Integer.parseInt(hidInt) + "' and status = 1";
+            sql = "SELECT *FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY sid) AS RowNum FROM SanPham where hid ='" + Integer.parseInt(hidInt) + "' and status = 1) AS MyTable"
+                    + " WHERE MyTable.RowNum BETWEEN " + offset + " AND " + page * numberProduct + "";
             rs = dbconn.getData(sql);
             request.setAttribute("listProduct", rs);
+            sql = "select COUNT(sid) from SanPham where status = 1 and hid ='" + Integer.parseInt(hidInt) + "'";
+            ResultSet rs2 = dbconn.getData(sql);
+            Double count = 0.0;
+            if (rs2.next()) {
+                count = rs2.getDouble(1);
+            }
+            Double pageNum = Math.ceil((count / numberProduct));
+            System.out.println(pageNum);
+            request.setAttribute("countpage", pageNum.intValue());
             displayHangSanXuat(request, rs, dbconn);
             dispatch(request, response, "/Product.jsp");
         }
+
     }
 
     private void displayHangSanXuat(HttpServletRequest request, ResultSet rs, DBConnection dbconn) {
